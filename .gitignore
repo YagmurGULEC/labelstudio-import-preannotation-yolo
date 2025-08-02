@@ -50,4 +50,4 @@ MP3_P2.ipynb
 /postgres-data
 /infrastructure
 /bucket
-main.py
+/workspace/output/*

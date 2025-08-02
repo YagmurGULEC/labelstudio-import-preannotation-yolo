@@ -1,0 +1,86 @@
+version: '3.9'
+services:
+  nginx:
+    build: .
+    image: heartexlabs/label-studio:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8085"
+      - "8081:8086"
+    depends_on:
+      - app
+    environment:
+      - LABEL_STUDIO_HOST=${LABEL_STUDIO_HOST:-}
+    #   Optional: Specify SSL termination certificate & key
+    #   Just drop your cert.pem and cert.key into folder 'deploy/nginx/certs'
+    #      - NGINX_SSL_CERT=/certs/cert.pem
+    #      - NGINX_SSL_CERT_KEY=/certs/cert.key
+    volumes:
+      - ./mydata:/label-studio/data:rw
+      - ./deploy/nginx/certs:/certs:ro
+    #   Optional: Override nginx default conf
+    #      - ./deploy/my.conf:/etc/nginx/nginx.conf
+    command: nginx
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    command: server /data --console-address ":9009"
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9009:9009"
+    volumes:
+      - minio_data:/data
+    env_file:
+      - .env
+  app:
+    stdin_open: true
+    tty: true
+    build: .
+    image: heartexlabs/label-studio:latest
+    restart: unless-stopped
+    expose:
+      - "8000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    volumes:
+      - ./mydata:/label-studio/data:rw
+    command: label-studio-uwsgi
+  db:
+    image: pgautoupgrade/pgautoupgrade:13-alpine
+    hostname: db
+    restart: unless-stopped
+    # Optional: Enable TLS on PostgreSQL
+    # Just drop your server.crt and server.key into folder 'deploy/pgsql/certs'
+    # NOTE: Both files must have permissions u=rw (0600) or less
+    #    command: >
+    #      -c ssl=on
+    #      -c ssl_cert_file=/var/lib/postgresql/certs/server.crt
+    #      -c ssl_key_file=/var/lib/postgresql/certs/server.key
+
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_USER=postgres
+    volumes:
+      - ${POSTGRES_DATA_DIR:-./postgres-data}:/var/lib/postgresql/data
+      - ./deploy/pgsql/certs:/var/lib/postgresql/certs:ro
+  glue-local:
+    image: public.ecr.aws/glue/aws-glue-libs:5
+    container_name: glue5_local
+    environment:
+
+      - AWS_PROFILE=default # change if needed
+    volumes:
+      - ~/.aws:/home/hadoop/.aws:ro
+      - ./workspace:/home/hadoop/workspace
+    working_dir: /home/hadoop/workspace
+    stdin_open: true
+    tty: true
+
+volumes:
+  minio_data:
+    driver: local
+  postgres-data:
+    driver: local
