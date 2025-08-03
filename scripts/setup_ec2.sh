@@ -20,13 +20,9 @@ systemctl enable docker
 # Add the EC2 default user to the docker group
 usermod -aG docker ec2-user
 newgrp docker
-dnf install -y git    # Amazon Linux 2023
+
 # Install Python
-dnf install -y python3
-
-# Optionally: install curl
-dnf install -y curl
-
+dnf install -y python3 curl git
 # Download and install uv
 curl -Ls https://astral.sh/uv/install.sh | bash
 

@@ -4,19 +4,17 @@ import io
 
 # Your S3 bucket and (optional) prefix
 bucket_name = "label-studio-crawler-bucket"
-prefix = "pascal-voc-2012/"
+
 
 # Path to your local ZIP file
 zip_path = "./data/pascal-voc-2012-dataset.zip"
 
 # Initialize S3 client (uses IAM role if on EC2)
 s3 = boto3.client("s3")
-print(s3)
-# Open the zip file
-with open(zip_path, "rb") as f:
-    zip_bytes = io.BytesIO(f.read())
 
-with zipfile.ZipFile(zip_bytes) as zip_file:
+
+
+with zipfile.ZipFile(zip_path) as zip_file:
     for file_info in zip_file.infolist():
         if file_info.is_dir():
             continue  # Skip folders
@@ -39,4 +37,4 @@ with zipfile.ZipFile(zip_bytes) as zip_file:
             print(f"Uploading {file_name} to s3://{bucket_name}/{prefix_name}")
             # # Upload the file to S3
             with zip_file.open(file_info) as file_data:
-                s3.upload_fileobj(file_data, bucket_name, prefix + prefix_name)
+                s3.upload_fileobj(file_data, bucket_name, prefix_name)

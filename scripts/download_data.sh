@@ -1,5 +1,7 @@
 #!/bin/bash
 
+
+source .venv/bin/activate
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 mkdir -p $SCRIPT_DIR/../data
 cd $SCRIPT_DIR/../data
