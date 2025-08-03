@@ -20,7 +20,7 @@ systemctl enable docker
 # Add the EC2 default user to the docker group
 usermod -aG docker ec2-user
 newgrp docker
-
+dnf install -y git    # Amazon Linux 2023
 # Install Python
 dnf install -y python3
 

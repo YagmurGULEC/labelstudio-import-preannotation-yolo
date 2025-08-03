@@ -1,62 +1,6 @@
 
 
-# resource "aws_s3_bucket" "my_bucket" {
-#   bucket = "my-ec2-access-bucket-${random_id.bucket_id.hex}"
 
-# }
-
-# resource "aws_s3_bucket_public_access_block" "my_bucket_pab" {
-#   bucket = aws_s3_bucket.my_bucket.id
-
-#   block_public_acls       = true
-#   block_public_policy     = true
-#   ignore_public_acls      = true
-#   restrict_public_buckets = true
-# }
-# resource "random_id" "bucket_id" {
-#   byte_length = 4
-# }
-
-# resource "aws_iam_role" "ec2_s3_role" {
-#   name = "ec2-s3-access-role"
-
-#   assume_role_policy = jsonencode({
-#     Version = "2012-10-17",
-#     Statement = [{
-#       Action = "sts:AssumeRole",
-#       Effect = "Allow",
-#       Principal = {
-#         Service = "ec2.amazonaws.com"
-#       }
-#     }]
-#   })
-# }
-
-# resource "aws_iam_role_policy" "s3_access_policy" {
-#   name = "ec2-s3-policy"
-#   role = aws_iam_role.ec2_s3_role.id
-
-#   policy = jsonencode({
-#     Version = "2012-10-17",
-#     Statement = [{
-#       Action = [
-#         "s3:ListBucket",
-#         "s3:GetObject",
-#         "s3:PutObject"
-#       ],
-#       Effect = "Allow",
-#       Resource = [
-#         aws_s3_bucket.my_bucket.arn,
-#         "${aws_s3_bucket.my_bucket.arn}/*"
-#       ]
-#     }]
-#   })
-# }
-
-# resource "aws_iam_instance_profile" "ec2_instance_profile" {
-#   name = "ec2-s3-profile"
-#   role = aws_iam_role.ec2_s3_role.name
-# }
 
 
 # VPC
@@ -153,14 +97,60 @@ resource "aws_security_group" "ec2_sg" {
     Name = "ec2_sg"
   }
 }
+resource "aws_iam_role" "ec2_s3_role" {
+  name = "ec2-s3-access-role"
 
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Action = "sts:AssumeRole",
+      Effect = "Allow",
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "s3_access_policy" {
+  name = "ec2-s3-policy"
+  role = aws_iam_role.ec2_s3_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "s3:ListBucket",
+          "s3:GetBucketLocation"
+        ],
+        Effect   = "Allow",
+        Resource = "arn:aws:s3:::${var.existing_bucket_name}"
+      },
+      {
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject"
+        ],
+        Effect   = "Allow",
+        Resource = "arn:aws:s3:::${var.existing_bucket_name}/*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_instance_profile" "ec2_instance_profile" {
+  name = "ec2-s3-profile"
+  role = aws_iam_role.ec2_s3_role.name
+}
 # EC2 instance with IAM role and public IP
 resource "aws_instance" "web" {
-  ami                    = var.ami_id
-  instance_type          = var.instance_type
-  subnet_id              = aws_subnet.public_subnet.id
-  vpc_security_group_ids = [aws_security_group.ec2_sg.id]
-  #   iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile.name
+  ami                         = var.ami_id
+  instance_type               = var.instance_type
+  subnet_id                   = aws_subnet.public_subnet.id
+  vpc_security_group_ids      = [aws_security_group.ec2_sg.id]
+  iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile.name
   associate_public_ip_address = true
   key_name                    = var.key_name # use the key name in AWS
   user_data                   = file(var.ec2_setup_script_path)
@@ -168,5 +158,10 @@ resource "aws_instance" "web" {
     Name = "my-ec2"
   }
 }
+
+
+
+
+
 
 

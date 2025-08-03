@@ -38,3 +38,9 @@ variable "ec2_setup_script_path" {
   type        = string
 
 }
+
+variable "existing_bucket_name" {
+  description = "The name of the existing S3 bucket to use for EC2 instance role policy"
+  type        = string
+  default     = "label-studio-crawler-bucket" # Replace with your existing bucket name
+}
