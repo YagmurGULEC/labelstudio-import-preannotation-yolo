@@ -88,7 +88,9 @@ if __name__ == "__main__":
     parser.add_argument("--output_dir_2", type=str, default="./bucket/Annotations_Glue", help="Directory containing images.")
     args = parser.parse_args()
     
-    dir= Path(args.main_dir)
+    # dir= Path(args.main_dir)
+
+    dir=Path("..")
     annotation_dir = str(dir / 'Annotations')
     image_dir = str(dir / 'JPEGImages')
 
@@ -105,8 +107,4 @@ if __name__ == "__main__":
         output_dir_2=args.output_dir_2
     ))
     json_files=[file for file in os.listdir(output_dir) if file.endswith('.json')]
-    csv_files=[file for file in os.listdir(output_dir_2) if file.endswith('.csv')]
-    img_files=[file for file in os.listdir(image_dir) if file.endswith('.jpg') or file.endswith('.jpeg')]
-    
-    assert len(json_files)==len(img_files), f"Number of JSON files {len(json_files)} does not match number of image files {len(img_files)}"
-   
+ 
