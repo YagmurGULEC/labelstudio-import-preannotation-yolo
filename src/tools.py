@@ -10,9 +10,9 @@ import boto3
 import argparse
 
 load_dotenv()
-semaphore = asyncio.Semaphore(MAX_CONCURRENT_WRITES)
 
-async def write_to_file(file_path, data):
+
+async def write_to_file(file_path, data,semaphore):
     """Asynchronously write data to a file with concurrency control."""
     async with semaphore:
         async with aiofiles.open(file_path, 'w') as f:

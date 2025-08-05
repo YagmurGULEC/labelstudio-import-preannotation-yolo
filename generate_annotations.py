@@ -5,6 +5,7 @@ import argparse
 from pathlib import Path
 import pandas as pd 
 import json
+from src.config import VOC_CLASSES, MAX_CONCURRENT_WRITES
 
 def flatten_json(json_data, output_dir=None):
     image_id= json_data.get('data', '').get('image', '')
@@ -38,7 +39,9 @@ async def main(annotation_dir,train=True,s3_bucket=None, img_prefix=None, image_
     """
     Main function to convert VOC annotations to Label Studio format.
     """
+    semaphore = asyncio.Semaphore(MAX_CONCURRENT_WRITES)
     annotation_files = [os.path.join(annotation_dir, f) for f in os.listdir(annotation_dir) if f.endswith('.xml')]
+    print (f"Found {len(annotation_files)} annotation files.")
     annotation_files = sorted(annotation_files)
     # annotation_files=annotation_files[:2]  # Limit to 1000 files for testing
   
@@ -70,7 +73,7 @@ async def main(annotation_dir,train=True,s3_bucket=None, img_prefix=None, image_
             # df = pd.DataFrame(raws)
             # df.to_csv(annotation_path_flat, index=False)
     write_tasks.extend([
-        write_to_file(annotation_path, json.dumps(annotation, indent=2))
+        write_to_file(annotation_path, json.dumps(annotation, indent=2),semaphore)
         for annotation_path, annotation in results if annotation is not None
         ])
 
