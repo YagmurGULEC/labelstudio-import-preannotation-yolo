@@ -22,32 +22,32 @@ services:
     #      - ./deploy/my.conf:/etc/nginx/nginx.conf
     command: nginx
 
-  minio:
-    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
-    command: server /data --console-address ":9009"
-    restart: unless-stopped
-    ports:
-      - "9000:9000"
-      - "9009:9009"
-    volumes:
-      - minio_data:/data
-    env_file:
-      - .env
-  app:
-    stdin_open: true
-    tty: true
-    build: .
-    image: heartexlabs/label-studio:latest
-    restart: unless-stopped
-    expose:
-      - "8000"
-    depends_on:
-      - db
-    env_file:
-      - .env
-    volumes:
-      - ./mydata:/label-studio/data:rw
-    command: label-studio-uwsgi
+  # minio:
+  #   image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+  #   command: server /data --console-address ":9009"
+  #   restart: unless-stopped
+  #   ports:
+  #     - "9000:9000"
+  #     - "9009:9009"
+  #   volumes:
+  #     - minio_data:/data
+  #   env_file:
+  #     - .env
+  # app:
+  #   stdin_open: true
+  #   tty: true
+  #   build: .
+  #   image: heartexlabs/label-studio:latest
+  #   restart: unless-stopped
+  #   expose:
+  #     - "8000"
+  #   depends_on:
+  #     - db
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - ./mydata:/label-studio/data:rw
+  #   command: label-studio-uwsgi
   db:
     image: pgautoupgrade/pgautoupgrade:13-alpine
     hostname: db
@@ -66,21 +66,21 @@ services:
     volumes:
       - ${POSTGRES_DATA_DIR:-./postgres-data}:/var/lib/postgresql/data
       - ./deploy/pgsql/certs:/var/lib/postgresql/certs:ro
-  glue-local:
-    image: public.ecr.aws/glue/aws-glue-libs:5
-    container_name: glue5_local
-    environment:
+  # glue-local:
+  #   image: public.ecr.aws/glue/aws-glue-libs:5
+  #   container_name: glue5_local
+  #   environment:
 
-      - AWS_PROFILE=default # change if needed
-    volumes:
-      - ~/.aws:/home/hadoop/.aws:ro
-      - ./workspace:/home/hadoop/workspace
-    working_dir: /home/hadoop/workspace
-    stdin_open: true
-    tty: true
+  #     - AWS_PROFILE=default # change if needed
+  #   volumes:
+  #     - ~/.aws:/home/hadoop/.aws:ro
+  #     - ./workspace:/home/hadoop/workspace
+  #   working_dir: /home/hadoop/workspace
+  #   stdin_open: true
+  #   tty: true
 
 volumes:
-  minio_data:
-    driver: local
+  # minio_data:
+  #   driver: local
   postgres-data:
     driver: local
