@@ -33,21 +33,21 @@ services:
   #     - minio_data:/data
   #   env_file:
   #     - .env
-  # app:
-  #   stdin_open: true
-  #   tty: true
-  #   build: .
-  #   image: heartexlabs/label-studio:latest
-  #   restart: unless-stopped
-  #   expose:
-  #     - "8000"
-  #   depends_on:
-  #     - db
-  #   env_file:
-  #     - .env
-  #   volumes:
-  #     - ./mydata:/label-studio/data:rw
-  #   command: label-studio-uwsgi
+  app:
+    stdin_open: true
+    tty: true
+    build: .
+    image: heartexlabs/label-studio:latest
+    restart: unless-stopped
+    expose:
+      - "8000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    volumes:
+      - ./mydata:/label-studio/data:rw
+    command: label-studio-uwsgi
   db:
     image: pgautoupgrade/pgautoupgrade:13-alpine
     hostname: db
