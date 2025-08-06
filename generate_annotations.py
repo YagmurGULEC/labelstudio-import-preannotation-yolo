@@ -93,7 +93,7 @@ if __name__ == "__main__":
     
     # dir= Path(args.main_dir)
 
-    dir=Path("..")
+    dir=Path("./data")
     annotation_dir = str(dir / 'Annotations')
     image_dir = str(dir / 'JPEGImages')
 

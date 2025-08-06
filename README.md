@@ -29,3 +29,7 @@ chmod -R 777 workspace/data
 ```
 docker-compose run glue-local spark-submit   src/create_schema.py   --JOB_NAME test_job   --INPUT_PATH /home/hadoop/workspace/data   --OUTPUT_PATH /home/hadoop/workspace/output
 ```
+6. Get a schema design by running the command
+```
+cat query.sql | docker exec -i <container_id> psql -U postgres -d postgres > output.json
+```
